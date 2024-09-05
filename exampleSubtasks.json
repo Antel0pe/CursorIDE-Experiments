@@ -1,0 +1,45 @@
+{
+    "projectDescription": "A blog app where users can create an account, post blogs, and read blogs.",
+    "subtasks": [
+        {
+            "subtask": "Set up mock data for users and blog posts.",
+            "explanation": "Start by creating mock data for users (with fields like username, email, and password) and blog posts (with fields like title, content, authorID). This data will be used to simulate user interactions with the blog app, allowing us to test components and functionalities without needing a backend initially."
+        },
+        {
+            "subtask": "Design the user registration form.",
+            "explanation": "Create a form component where new users can sign up by providing their username, email, and password. This form will give users a way to create accounts in your app, an essential starting point for interacting with other features."
+        },
+        {
+            "subtask": "Design the login form component.",
+            "explanation": "Develop a login form that allows users to enter their email and password to access the app. This will enable users to authenticate and differentiate content based on whether they are logged in."
+        },
+        {
+            "subtask": "Implement basic navigation with a header bar.",
+            "explanation": "Create a header component that includes navigation links to Login, Register, Home, and Create Post pages. This will help users easily navigate through the app and access different features."
+        },
+        {
+            "subtask": "Create the blog post creation form.",
+            "explanation": "Develop a form that allows authenticated users to write and submit new blog posts. Include fields for the title and content. This is a core feature where users can create content for the blog app."
+        },
+        {
+            "subtask": "Display a list of blog posts on the homepage.",
+            "explanation": "Develop a component that fetches (from mock data) and displays blog posts as a list on the homepage. Each list item should show the post title and a short excerpt or introduction. This feature lets users browse available content."
+        },
+        {
+            "subtask": "Implement a single blog post view component.",
+            "explanation": "Create a component that displays the full content of a post when a user clicks on a blog post title from the list. This allows users to read the full details of any post they are interested in."
+        },
+        {
+            "subtask": "Add authentication state management.",
+            "explanation": "Implement a simple state management solution to keep track of whether a user is logged in. Using mock authentication credentials or a simple state variable will suffice for this purpose during development."
+        },
+        {
+            "subtask": "Link the blog post creation form with user authentication.",
+            "explanation": "Ensure that only logged-in users can access and submit the blog post creation form. This maintains app security and ensures that all posts are associated with a registered user."
+        },
+        {
+            "subtask": "Create user profile pages showing user's posts.",
+            "explanation": "Develop a user profile component showing all posts created by a logged-in user. This provides users with a personal view of their contributions and allows them to manage or edit their posts."
+        }
+    ]
+}
