@@ -184,13 +184,17 @@ async function processSubtasks() {
     response = await generateSubtasks(chatgptPrompt);
     response = JSON.parse(response.content);
     if (response){
-      console.log('Number of subtasks: ', response.subtasks.length);
+      console.log('Subtasks:');
+      response.subtasks.forEach((subtask, index) => {
+        console.log(`${index + 1}. ${subtask.subtask}`);
+      });
+      const userPrompt = prompt(`\n`);
     } else {
       console.log("No parsed response found in the response.");
     }
 
     for (const subtask of response.subtasks){
-      fileChangesForSubtask = await generateFileChanges(`{description: ${chatgptPrompt}, subtask: ${subtask}, directoryStructure: ${directoryStructure}, dependencies: ${dependencies}}`);
+      fileChangesForSubtask = await generateFileChanges(`{description: ${chatgptPrompt}, subtask: ${subtask}, explanation for subtask: ${subtask.explanation}, directoryStructure: ${directoryStructure}, dependencies: ${dependencies}}`);
       fileChangesForSubtask = JSON.parse(fileChangesForSubtask.content);
       console.log('Number of file changes for subtask: ', fileChangesForSubtask.fileChanges.length); // get file changes
       processSubtask(fileChangesForSubtask);
@@ -203,10 +207,10 @@ async function processSubtasks() {
 
 
 async function processSubtask(fileChangesForSubtask){
-  for (const fileChange of fileChangesForSubtask.fileChanges){
-    console.log(`${fileChange.typeOfChanges} | ${fileChange.filePath} | ${fileChange.descriptionOfChanges}`);
-    const userInput = prompt(`Press Enter to continue to the next file...\n`);
-  }
+  fileChangesForSubtask.fileChanges.forEach((fileChange, index, array) => {
+    console.log(`${index + 1}/${array.length}: ${fileChange.typeOfChanges} | ${fileChange.filePath} | ${fileChange.descriptionOfChanges}`);
+    const userInput = prompt(``);
+  });
 }
 
 
