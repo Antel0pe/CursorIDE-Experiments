@@ -64,11 +64,9 @@ const SubtaskSchema = z.object({
   explanation: z.string().describe("A detailed explanation of why this subtask is necessary, how it contributes to the overall project, and how it builds on the previous subtask."),
 });
 
-const SubtasksArraySchema = z.array(SubtaskSchema);
-
 const ProjectPlanSchema = z.object({
   projectDescription: z.string().describe("A simple description of the project."),
-  subtasks: SubtasksArraySchema,
+  subtasks: z.array(SubtaskSchema),
 });
 
 // -------------    
@@ -76,22 +74,21 @@ const ProjectPlanSchema = z.object({
 // List of changes to be made in each file
 const FileChangeSchema = z.object({
   filePath: z.string(),
-  typeOfChanges: z.enum(["add new file", "remove file", "modify file"]),
+  typeOfChanges: z.enum(["add new file", "remove file", "modify file", "install dependency"]),
   descriptionOfChanges: z.string(),
 });
 
-const nonFileChangesSchema = z.object({
-  typeOfChanges: z.enum(["install dependency"]),
-  descriptionOfChanges: z.string(),
-});
 
-const FileChangesArraySchema = z.array(z.union([FileChangeSchema, nonFileChangesSchema]));
+const FileChangesArraySchema = z.object({
+  subtask: z.string(),
+  fileChanges: z.array(FileChangeSchema),
+});
 
 
 // -------------
 
 // Chat with GPT
-async function chatWithGPT(prompt) {
+async function generateSubtasks(prompt) {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -104,9 +101,6 @@ async function chatWithGPT(prompt) {
            
            You can assume that a basic npx create-react-app has been created. If you need to simulate data/interface with APIs, use mock data.
            Be clear, concise, and detailed like a senior developer would when mentoring an intern.
-
-
-           
 
           For example, if I wanted to build a simple web app that lets you search for books and save them to a reading list, the subtasks might be:
           - Create mock data for books and user reviews
@@ -127,8 +121,38 @@ async function chatWithGPT(prompt) {
             role: "user",
             content: prompt,
         },
-    ],
+      ],
     response_format: zodResponseFormat(ProjectPlanSchema, "ProjectPlanSchema"),
+    });
+    return response.choices[0].message;
+  } catch (error) {
+    console.error("Error in ChatGPT API call:", error);
+    return "Sorry, there was an error processing your request.";
+  }
+}
+
+async function generateFileChanges(prompt) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { 
+          role: "system", content: 
+          `
+          You are a senior developer mentoring an intern. You will be given a description of the project we are working on and 1 subtask that you have to instruct an intern on how to implement.
+          You will then be given the directory structure of the project and the current dependencies of the project. You may instruct the intern to add/remove/modify files or install new dependencies if needed.
+
+          If you would like to modify a file, you have to instruct the intern on what needs to be changed. Ensure that each change applies to a single file at a time. 
+          Ensure that the changes you instruct can be followed in the order they are given. For example do not ask the intern to import a dependency before it has been installed.
+          Be clear, detailed, and concise. Do not write any code yourself. Simply describe the changes needed. Generate the response in a JSON format.
+          `
+        },
+        {
+            role: "user",
+            content: prompt,
+        },
+    ],
+    response_format: zodResponseFormat(FileChangesArraySchema, "FileChangesArraySchema"),
     });
     return response.choices[0].message;
   } catch (error) {
@@ -142,6 +166,7 @@ const dirPath = "./blog-app";
 
 // Get directory structure
 const validatedStructure = validateDirectoryStructure(dirPath);
+const directoryStructure = JSON.stringify(validatedStructure, null, 2);
 // console.log(JSON.stringify(validatedStructure, null, 2));
 
 // Get dependencies
@@ -151,30 +176,65 @@ const dependencies = getDependencies(dirPath);
 // Talk to GPT
 const chatgptPrompt = `I want to build a blog app where users can create an account, post blogs, and read blogs.`;
 // include dir, dependencies, and prompt
-let response = chatWithGPT(chatgptPrompt).then(response => console.log(response)) // get subtasks
+let response;
+let fileChangesForSubtask;
+
+async function processSubtasks() {
+  try {
+    response = await generateSubtasks(chatgptPrompt);
+    response = JSON.parse(response.content);
+    if (response){
+      console.log('Number of subtasks: ', response.subtasks.length);
+    } else {
+      console.log("No parsed response found in the response.");
+    }
+
+    for (const subtask of response.subtasks){
+      fileChangesForSubtask = await generateFileChanges(`{description: ${chatgptPrompt}, subtask: ${subtask}, directoryStructure: ${directoryStructure}, dependencies: ${dependencies}}`);
+      fileChangesForSubtask = JSON.parse(fileChangesForSubtask.content);
+      console.log('Number of file changes for subtask: ', fileChangesForSubtask.fileChanges.length); // get file changes
+      processSubtask(fileChangesForSubtask);
+    }
+
+  } catch (error) {
+    console.error("Error processing subtasks:", error);
+  }
+}
+
+
+async function processSubtask(fileChangesForSubtask){
+  for (const fileChange of fileChangesForSubtask.fileChanges){
+    console.log(`${fileChange.typeOfChanges} | ${fileChange.filePath} | ${fileChange.descriptionOfChanges}`);
+    const userInput = prompt(`Press Enter to continue to the next file...\n`);
+  }
+}
+
+
+processSubtasks();
 
 // response.subtasks.forEach(async subtask => {
 //   // include dir, dependencies, and subtask
-//   let fileChangesForSubtask; // get file changes
+//   let fileChangesForSubtask = generateFileChanges(`{description: ${chatgptPrompt}, subtask: ${subtask}, directoryStructure: ${directoryStructure}, dependencies: ${dependencies}`)
+//     .then(response => console.log(response)) ; // get file changes
 
-//   // write files    
-//   fileChangesForSubtask.fileChanges.forEach(fileChange => {
-//     if (fileChange.typeOfChanges === 'add new file') {
-//       const filePath = path.join(dirPath, fileChange.path);
-//       const directory = path.dirname(filePath);
+  // write files    
+  // fileChangesForSubtask.fileChanges.forEach(fileChange => {
+  //   if (fileChange.typeOfChanges === 'add new file') {
+  //     const filePath = path.join(dirPath, fileChange.path);
+  //     const directory = path.dirname(filePath);
 
-//       // Create directory if it doesn't exist
-//       if (!fs.existsSync(directory)) {
-//         fs.mkdirSync(directory, { recursive: true });
-//       }
+  //     // Create directory if it doesn't exist
+  //     if (!fs.existsSync(directory)) {
+  //       fs.mkdirSync(directory, { recursive: true });
+  //     }
 
-//       // Write the file
-//       fs.writeFileSync(filePath, fileChange.content);
-//       console.log(`Added new file: ${fileChange.path}`);
-//     } else {
-//       // Sleep until user input
-//       const userInput = prompt(`Press Enter to continue to the next file...`);
-//     }
-//   });
+  //     // Write the file
+  //     fs.writeFileSync(filePath, fileChange.content);
+  //     console.log(`Added new file: ${fileChange.path}`);
+  //   } else {
+  //     // Sleep until user input
+  //     const userInput = prompt(`Press Enter to continue to the next file...`);
+  //   }
+  // });
 // });
 
