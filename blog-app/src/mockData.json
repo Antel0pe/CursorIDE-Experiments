@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "username": "johndoe",
+    "email": "johndoe@example.com",
+    "posts": [
+      {
+        "id": 1,
+        "title": "My First Blog Post",
+        "content": "This is the content of my first blog post. It's exciting to start blogging!",
+        "date": "2023-06-01T12:00:00Z"
+      },
+      {
+        "id": 2,
+        "title": "Reflections on Web Development",
+        "content": "Web development is a constantly evolving field. Here are some of my thoughts on recent trends...",
+        "date": "2023-06-15T14:30:00Z"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "username": "janedoe",
+    "email": "janedoe@example.com",
+    "posts": [
+      {
+        "id": 3,
+        "title": "Cooking Adventures",
+        "content": "Today I tried a new recipe for chocolate chip cookies. Here's how it went...",
+        "date": "2023-06-10T18:45:00Z"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "username": "bobsmith",
+    "email": "bobsmith@example.com",
+    "posts": [
+      {
+        "id": 4,
+        "title": "Travel Diaries: Paris",
+        "content": "I just got back from a wonderful trip to Paris. Here are some highlights...",
+        "date": "2023-06-20T09:15:00Z"
+      },
+      {
+        "id": 5,
+        "title": "Book Review: The Great Gatsby",
+        "content": "I recently re-read The Great Gatsby and wanted to share my thoughts...",
+        "date": "2023-06-25T16:00:00Z"
+      }
+    ]
+  }
+]
