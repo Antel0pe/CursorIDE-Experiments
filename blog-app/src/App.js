@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './store';
 import './App.css';
@@ -53,11 +53,11 @@ function App() {
         </header>
         <main>
           <BrowserRouter>
-            <Switch>
-              <Route path="/register" component={Register} />
-              <Route path="/login" component={UserLogin} />
-              <Route path="/post/:id" component={BlogDetail} />
-              <Route exact path="/" render={() => (
+            <Routes>
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<UserLogin />} />
+              <Route path="/post/:id" element={<BlogDetail />} />
+              <Route path="/" element={
                 <>
                   <h2>Welcome to My Blog App</h2>
                   <form onSubmit={handleBlogSubmit}>
@@ -88,8 +88,8 @@ function App() {
                   </form>
                   <BlogPostList />
                 </>
-              )} />
-            </Switch>
+              } />
+            </Routes>
           </BrowserRouter>
         </main>
       </div>
