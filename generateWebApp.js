@@ -6,6 +6,11 @@ const path = require("path");
 const { zodResponseFormat } = require("openai/helpers/zod");
 const prompt = require('prompt-sync')({sigint: true});;
 
+// Talk to GPT
+const chatgptPrompt = `I want to build a blog app where users can create an account, post blogs, and read blogs.`;
+const dirPath = "./blog-app";
+
+
 
 const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY });
 
@@ -162,7 +167,6 @@ async function generateFileChanges(prompt) {
 }
 // ---------------
 
-const dirPath = "./blog-app";
 
 // Get directory structure
 const validatedStructure = validateDirectoryStructure(dirPath);
@@ -173,8 +177,6 @@ const directoryStructure = JSON.stringify(validatedStructure, null, 2);
 const dependencies = getDependencies(dirPath);
 // console.log(dependencies);
 
-// Talk to GPT
-const chatgptPrompt = `I want to build a blog app where users can create an account, post blogs, and read blogs.`;
 // include dir, dependencies, and prompt
 let response;
 let fileChangesForSubtask;
@@ -216,29 +218,5 @@ async function processSubtask(fileChangesForSubtask){
 
 processSubtasks();
 
-// response.subtasks.forEach(async subtask => {
-//   // include dir, dependencies, and subtask
-//   let fileChangesForSubtask = generateFileChanges(`{description: ${chatgptPrompt}, subtask: ${subtask}, directoryStructure: ${directoryStructure}, dependencies: ${dependencies}`)
-//     .then(response => console.log(response)) ; // get file changes
 
-  // write files    
-  // fileChangesForSubtask.fileChanges.forEach(fileChange => {
-  //   if (fileChange.typeOfChanges === 'add new file') {
-  //     const filePath = path.join(dirPath, fileChange.path);
-  //     const directory = path.dirname(filePath);
-
-  //     // Create directory if it doesn't exist
-  //     if (!fs.existsSync(directory)) {
-  //       fs.mkdirSync(directory, { recursive: true });
-  //     }
-
-  //     // Write the file
-  //     fs.writeFileSync(filePath, fileChange.content);
-  //     console.log(`Added new file: ${fileChange.path}`);
-  //   } else {
-  //     // Sleep until user input
-  //     const userInput = prompt(`Press Enter to continue to the next file...`);
-  //   }
-  // });
-// });
 

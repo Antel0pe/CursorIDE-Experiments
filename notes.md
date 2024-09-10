@@ -1,0 +1,8 @@
+- sometimes tried to remove existing functionality when adding something new
+    - Example prompt: Set up a context or Redux provider to manage the app state related to user authentication and blog posts.
+    - Resulted in all form functionality being removed by Cursor and adding ONLY the Redux provider and context.
+- says to create file but in the add_file description it tells what the file should be
+    - Doesn't include separate prompt for what should actually be in the file - theyre combined
+- says to install tailwind or bootstrap according to my preference
+    - Successive prompt says import either bootstrap or tailwind according to which one you downloaded
+- says to use tailwind css classes in components in app.css. Cursor then removes all the styles in app.css and comments remove this styling here and do in components
